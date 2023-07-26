@@ -1,0 +1,47 @@
+version: '2'
+networks:
+  react-express:
+  express-mongo:
+services:
+  frontend:
+    build:
+      context: frontend
+      #target: development
+    ports:
+      - 3008:3008
+    stdin_open: true
+    volumes:
+      - ./frontend:/usr/src/app/frontend
+      # - /usr/src/app/node_modules
+    restart: always
+    networks:
+      - react-express
+    depends_on:
+      - backend
+
+  backend:
+    restart: always
+    build:
+      context: backend
+      #target: development
+    volumes:
+      - ./backend:/usr/src/app/backend
+      # - /usr/src/app/node_modules
+    depends_on:
+      - mongo
+    networks:
+      - express-mongo
+      - react-express
+    ports:
+      - 3003:3003  
+    expose: 
+      - 3003
+  mongo:
+    restart: always
+    image: mongo:4.2.0
+    volumes:
+      - ./data:/data/db
+    networks:
+      - express-mongo
+    expose:
+      - 27017
